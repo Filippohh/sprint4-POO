@@ -1,0 +1,122 @@
+-- =====================================================================
+-- PROJETO MOTIVA / GreenAV - Sprint 3
+-- Script de CARGA DE DADOS DE TESTE (Oracle)
+-- Executar DEPOIS de script-criacao.sql
+-- =====================================================================
+
+-- ---------------------------------------------------------------------
+-- 0) LIMPEZA DOS DADOS (respeitando a ordem das FKs)
+-- ---------------------------------------------------------------------
+DELETE FROM MTV_INTERVENCAO_OPERACIONAL;
+DELETE FROM MTV_RELATORIO_PRIORIDADE;
+DELETE FROM MTV_TRECHO_RODOVIA;
+DELETE FROM MTV_EQUIPE_MANUTENCAO;
+COMMIT;
+
+-- ---------------------------------------------------------------------
+-- 1) EQUIPES DE MANUTENCAO
+-- ---------------------------------------------------------------------
+INSERT INTO MTV_EQUIPE_MANUTENCAO (NM_EQUIPE, DS_TURNO, QT_INTEGRANTES, ST_ATIVA)
+VALUES ('Alfa-01', 'MANHA', 6, 'S');
+
+INSERT INTO MTV_EQUIPE_MANUTENCAO (NM_EQUIPE, DS_TURNO, QT_INTEGRANTES, ST_ATIVA)
+VALUES ('Bravo-02', 'TARDE', 4, 'S');
+
+INSERT INTO MTV_EQUIPE_MANUTENCAO (NM_EQUIPE, DS_TURNO, QT_INTEGRANTES, ST_ATIVA)
+VALUES ('Charlie-03', 'NOITE', 5, 'S');
+
+INSERT INTO MTV_EQUIPE_MANUTENCAO (NM_EQUIPE, DS_TURNO, QT_INTEGRANTES, ST_ATIVA)
+VALUES ('Delta-04', 'MANHA', 3, 'N');
+
+COMMIT;
+
+-- ---------------------------------------------------------------------
+-- 2) TRECHOS DE RODOVIA
+--    Cobrem as 4 faixas de prioridade usadas pelo GeradorRelatorio:
+--    URGENTE (>= 30cm) | CRITICO (>= 20cm) | ATENCAO (>= 10cm) | NORMAL (< 10cm)
+-- ---------------------------------------------------------------------
+-- URGENTE (>= 30cm)
+INSERT INTO MTV_TRECHO_RODOVIA (NM_RODOVIA, NR_KM_INICIAL, NR_KM_FINAL, VL_NIVEL_VEGETACAO, TP_TRECHO, DT_ULTIMA_LEITURA)
+VALUES ('BR-116', 10, 15, 35.5, 'UMIDO', SYSDATE);
+
+-- CRITICO (>= 20cm)
+INSERT INTO MTV_TRECHO_RODOVIA (NM_RODOVIA, NR_KM_INICIAL, NR_KM_FINAL, VL_NIVEL_VEGETACAO, TP_TRECHO, DT_ULTIMA_LEITURA)
+VALUES ('BR-116', 20, 25, 25.0, 'UMIDO', SYSDATE);
+
+-- ATENCAO (>= 10cm)
+INSERT INTO MTV_TRECHO_RODOVIA (NM_RODOVIA, NR_KM_INICIAL, NR_KM_FINAL, VL_NIVEL_VEGETACAO, TP_TRECHO, DT_ULTIMA_LEITURA)
+VALUES ('SP-070', 50, 55, 12.0, 'SECO', SYSDATE);
+
+-- NORMAL (< 10cm)
+INSERT INTO MTV_TRECHO_RODOVIA (NM_RODOVIA, NR_KM_INICIAL, NR_KM_FINAL, VL_NIVEL_VEGETACAO, TP_TRECHO, DT_ULTIMA_LEITURA)
+VALUES ('SP-070', 60, 68, 8.0, 'SECO', SYSDATE);
+
+-- CRITICO (leitura de 2 dias atras)
+INSERT INTO MTV_TRECHO_RODOVIA (NM_RODOVIA, NR_KM_INICIAL, NR_KM_FINAL, VL_NIVEL_VEGETACAO, TP_TRECHO, DT_ULTIMA_LEITURA)
+VALUES ('SP-330', 100, 120, 21.7, 'UMIDO', SYSDATE - 2);
+
+-- NORMAL (leitura de 5 dias atras)
+INSERT INTO MTV_TRECHO_RODOVIA (NM_RODOVIA, NR_KM_INICIAL, NR_KM_FINAL, VL_NIVEL_VEGETACAO, TP_TRECHO, DT_ULTIMA_LEITURA)
+VALUES ('SP-330', 121, 130, 3.2, 'SECO', SYSDATE - 5);
+
+COMMIT;
+
+-- ---------------------------------------------------------------------
+-- 3) INTERVENCOES JA EXECUTADAS (historico)
+--    Usamos subqueries em vez de IDs "chumbados" para o script nao
+--    quebrar se as sequences estiverem em outro ponto.
+-- ---------------------------------------------------------------------
+INSERT INTO MTV_INTERVENCAO_OPERACIONAL
+    (ID_TRECHO, ID_EQUIPE, TP_INTERVENCAO, DT_EXECUCAO, VL_NIVEL_ANTES, VL_NIVEL_DEPOIS, VL_CUSTO)
+VALUES (
+    (SELECT ID_TRECHO FROM MTV_TRECHO_RODOVIA WHERE NM_RODOVIA = 'BR-116' AND NR_KM_INICIAL = 10),
+    (SELECT ID_EQUIPE FROM MTV_EQUIPE_MANUTENCAO WHERE NM_EQUIPE = 'Alfa-01'),
+    'ROCADA_MECANIZADA', SYSDATE - 30, 42.0, 2.0, 4850.00);
+
+INSERT INTO MTV_INTERVENCAO_OPERACIONAL
+    (ID_TRECHO, ID_EQUIPE, TP_INTERVENCAO, DT_EXECUCAO, VL_NIVEL_ANTES, VL_NIVEL_DEPOIS, VL_CUSTO)
+VALUES (
+    (SELECT ID_TRECHO FROM MTV_TRECHO_RODOVIA WHERE NM_RODOVIA = 'BR-116' AND NR_KM_INICIAL = 20),
+    (SELECT ID_EQUIPE FROM MTV_EQUIPE_MANUTENCAO WHERE NM_EQUIPE = 'Bravo-02'),
+    'PULVERIZACAO', SYSDATE - 18, 30.0, 15.0, 1720.50);
+
+INSERT INTO MTV_INTERVENCAO_OPERACIONAL
+    (ID_TRECHO, ID_EQUIPE, TP_INTERVENCAO, DT_EXECUCAO, VL_NIVEL_ANTES, VL_NIVEL_DEPOIS, VL_CUSTO)
+VALUES (
+    (SELECT ID_TRECHO FROM MTV_TRECHO_RODOVIA WHERE NM_RODOVIA = 'SP-070' AND NR_KM_INICIAL = 50),
+    (SELECT ID_EQUIPE FROM MTV_EQUIPE_MANUTENCAO WHERE NM_EQUIPE = 'Charlie-03'),
+    'ROCADA_MECANIZADA', SYSDATE - 9, 28.4, 2.0, 5130.00);
+
+INSERT INTO MTV_INTERVENCAO_OPERACIONAL
+    (ID_TRECHO, ID_EQUIPE, TP_INTERVENCAO, DT_EXECUCAO, VL_NIVEL_ANTES, VL_NIVEL_DEPOIS, VL_CUSTO)
+VALUES (
+    (SELECT ID_TRECHO FROM MTV_TRECHO_RODOVIA WHERE NM_RODOVIA = 'SP-330' AND NR_KM_INICIAL = 100),
+    (SELECT ID_EQUIPE FROM MTV_EQUIPE_MANUTENCAO WHERE NM_EQUIPE = 'Alfa-01'),
+    'PULVERIZACAO', SYSDATE - 3, 43.4, 21.7, 2380.00);
+
+COMMIT;
+
+-- ---------------------------------------------------------------------
+-- 4) RELATORIOS ANTERIORES (historico inicial)
+--    Novos registros sao gravados pelo GeradorRelatorio em tempo de execucao.
+-- ---------------------------------------------------------------------
+INSERT INTO MTV_RELATORIO_PRIORIDADE (DT_GERACAO, QT_URGENTE, QT_CRITICO, QT_ATENCAO, QT_NORMAL, DS_RESUMO)
+VALUES (SYSTIMESTAMP - 7, 2, 1, 2, 1,
+        'Varredura semanal: 6 trechos analisados, 3 com intervencao imediata recomendada.');
+
+INSERT INTO MTV_RELATORIO_PRIORIDADE (DT_GERACAO, QT_URGENTE, QT_CRITICO, QT_ATENCAO, QT_NORMAL, DS_RESUMO)
+VALUES (SYSTIMESTAMP - 1, 1, 2, 1, 2,
+        'Varredura diaria: 6 trechos analisados, 3 com intervencao imediata recomendada.');
+
+COMMIT;
+
+-- ---------------------------------------------------------------------
+-- 5) CONFERENCIA
+-- ---------------------------------------------------------------------
+SELECT 'EQUIPES'      AS TABELA, COUNT(*) AS QTD FROM MTV_EQUIPE_MANUTENCAO
+UNION ALL
+SELECT 'TRECHOS',      COUNT(*) FROM MTV_TRECHO_RODOVIA
+UNION ALL
+SELECT 'INTERVENCOES', COUNT(*) FROM MTV_INTERVENCAO_OPERACIONAL
+UNION ALL
+SELECT 'RELATORIOS',   COUNT(*) FROM MTV_RELATORIO_PRIORIDADE;
