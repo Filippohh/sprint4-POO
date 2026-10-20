@@ -261,6 +261,9 @@ mvn test
 Abaixo estão registrados exemplos reais de requisições executadas contra a API rodando com Spring Boot conectado ao banco Oracle da FIAP.
 
 ### Requisição 1: Listar Todos os Trechos (CRUD - Read)
+
+![Print 1 - Listar Trechos (200 OK)](docs/prints/01_get_trechos_200.png)
+
 ```bash
 curl -X GET http://localhost:8080/api/trechos
 ```
@@ -325,6 +328,9 @@ curl -X GET http://localhost:8080/api/trechos
 ---
 
 ### Requisição 2: Criar Novo Trecho (CRUD - Create)
+
+![Print 2 - Criar Trecho (201 Created)](docs/prints/02_post_trecho_201.png)
+
 ```bash
 curl -i -X POST http://localhost:8080/api/trechos \
   -H "Content-Type: application/json" \
@@ -360,6 +366,9 @@ Content-Type: application/json
 ---
 
 ### Requisição 3: Atualizar Trecho Existente (CRUD - Update)
+
+![Print 3 - Atualizar Trecho (200 OK)](docs/prints/03_put_trecho_200.png)
+
 ```bash
 curl -i -X PUT http://localhost:8080/api/trechos/16 \
   -H "Content-Type: application/json" \
@@ -394,6 +403,9 @@ Content-Type: application/json
 ---
 
 ### Requisição 4: Remover Trecho (CRUD - Delete)
+
+![Print 4 - Remover Trecho (204 No Content e Confirmação 404)](docs/prints/04_delete_trecho_204_404.png)
+
 ```bash
 curl -i -X DELETE http://localhost:8080/api/trechos/16
 ```
@@ -422,6 +434,9 @@ curl -i -X GET http://localhost:8080/api/trechos/16
 ---
 
 ### Requisição 5: Teste de Validação Global (@Valid + Bean Validation)
+
+![Print 5 - Validação Global (400 Bad Request)](docs/prints/05_validacao_erro_400.png)
+
 ```bash
 curl -i -X POST http://localhost:8080/api/trechos \
   -H "Content-Type: application/json" \
@@ -454,6 +469,9 @@ curl -i -X POST http://localhost:8080/api/trechos \
 ---
 
 ### Requisição 6: Filtrar Trechos por Derived Query (`findByTipo`)
+
+![Print 6 - Derived Query Spring Data JPA (200 OK)](docs/prints/06_derived_query_tipo_200.png)
+
 ```bash
 curl -X GET http://localhost:8080/api/trechos/tipo/UMIDO
 ```
@@ -492,6 +510,9 @@ curl -X GET http://localhost:8080/api/trechos/tipo/UMIDO
 ---
 
 ### Requisição 7: Gerar Relatório de Prioridade e Gravar no Oracle
+
+![Print 7 - Geração de Relatório e Persistência no Oracle (201 Created)](docs/prints/07_post_relatorio_201.png)
+
 ```bash
 curl -i -X POST http://localhost:8080/api/relatorios
 ```
